@@ -1,0 +1,524 @@
+{
+  "default": {
+    "action": "errno",
+    "errno": 13
+  },
+  "rules": [
+    {
+      "name": "probe-write-result",
+      "syscall": 1,
+      "condition": {
+        "eq": {
+          "arg": 0,
+          "value": "3"
+        }
+      },
+      "action": {
+        "action": "allow"
+      }
+    },
+    {
+      "name": "probe-exit",
+      "syscall": 231,
+      "action": {
+        "action": "allow"
+      }
+    },
+    {
+      "name": "getpid-or-of-30-ranges",
+      "syscall": 39,
+      "condition": {
+        "or": [
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "10",
+              "hi": "11"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "20",
+              "hi": "21"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "30",
+              "hi": "31"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "40",
+              "hi": "41"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "50",
+              "hi": "51"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "60",
+              "hi": "61"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "70",
+              "hi": "71"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "80",
+              "hi": "81"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "90",
+              "hi": "91"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "100",
+              "hi": "101"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "110",
+              "hi": "111"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "120",
+              "hi": "121"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "130",
+              "hi": "131"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "140",
+              "hi": "141"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "150",
+              "hi": "151"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "160",
+              "hi": "161"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "170",
+              "hi": "171"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "180",
+              "hi": "181"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "190",
+              "hi": "191"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "200",
+              "hi": "201"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "210",
+              "hi": "211"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "220",
+              "hi": "221"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "230",
+              "hi": "231"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "240",
+              "hi": "241"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "250",
+              "hi": "251"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "260",
+              "hi": "261"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "270",
+              "hi": "271"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "280",
+              "hi": "281"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "290",
+              "hi": "291"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "300",
+              "hi": "301"
+            }
+          }
+        ]
+      },
+      "action": {
+        "action": "allow"
+      }
+    },
+    {
+      "name": "getuid-or-of-30-ranges-errno",
+      "syscall": 102,
+      "condition": {
+        "or": [
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "500",
+              "hi": "501"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "510",
+              "hi": "511"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "520",
+              "hi": "521"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "530",
+              "hi": "531"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "540",
+              "hi": "541"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "550",
+              "hi": "551"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "560",
+              "hi": "561"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "570",
+              "hi": "571"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "580",
+              "hi": "581"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "590",
+              "hi": "591"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "600",
+              "hi": "601"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "610",
+              "hi": "611"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "620",
+              "hi": "621"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "630",
+              "hi": "631"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "640",
+              "hi": "641"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "650",
+              "hi": "651"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "660",
+              "hi": "661"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "670",
+              "hi": "671"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "680",
+              "hi": "681"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "690",
+              "hi": "691"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "700",
+              "hi": "701"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "710",
+              "hi": "711"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "720",
+              "hi": "721"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "730",
+              "hi": "731"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "740",
+              "hi": "741"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "750",
+              "hi": "751"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "760",
+              "hi": "761"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "770",
+              "hi": "771"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "780",
+              "hi": "781"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "790",
+              "hi": "791"
+            }
+          }
+        ]
+      },
+      "action": {
+        "action": "errno",
+        "errno": 78
+      }
+    },
+    {
+      "name": "getgid-deep-and-across-args",
+      "syscall": 104,
+      "condition": {
+        "and": [
+          {
+            "in_range": {
+              "arg": 0,
+              "lo": "1000",
+              "hi": "2000"
+            }
+          },
+          {
+            "eq": {
+              "arg": 1,
+              "value": "4294967296"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 2,
+              "lo": "0",
+              "hi": "18446744073709551615"
+            }
+          },
+          {
+            "not": {
+              "eq": {
+                "arg": 3,
+                "value": "7"
+              }
+            }
+          },
+          {
+            "eq": {
+              "arg": 4,
+              "value": "8"
+            }
+          },
+          {
+            "in_range": {
+              "arg": 5,
+              "lo": "9",
+              "hi": "10"
+            }
+          }
+        ]
+      },
+      "action": {
+        "action": "errno",
+        "errno": 77
+      }
+    }
+  ]
+}

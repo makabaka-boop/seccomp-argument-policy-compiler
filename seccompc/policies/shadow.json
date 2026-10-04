@@ -1,0 +1,26 @@
+{
+  "default": {"action": "errno", "errno": 13},
+  "rules": [
+    {"name": "probe-write-result", "syscall": 1,
+     "condition": {"eq": {"arg": 0, "value": "3"}},
+     "action": {"action": "allow"}},
+    {"name": "probe-exit", "syscall": 231,
+     "action": {"action": "allow"}},
+
+    {"name": "getuid-100-allow", "syscall": 102,
+     "condition": {"eq": {"arg": 0, "value": "100"}},
+     "action": {"action": "allow"}},
+    {"name": "getuid-0-200-errno99", "syscall": 102,
+     "condition": {"in_range": {"arg": 0, "lo": "0", "hi": "200"}},
+     "action": {"action": "errno", "errno": 99}},
+    {"name": "getuid-catchall-errno100", "syscall": 102,
+     "action": {"action": "errno", "errno": 100}},
+
+    {"name": "getpid-broad-deny-first", "syscall": 39,
+     "condition": {"in_range": {"arg": 0, "lo": "0", "hi": "1000"}},
+     "action": {"action": "errno", "errno": 50}},
+    {"name": "getpid-narrow-allow-shadowed", "syscall": 39,
+     "condition": {"eq": {"arg": 0, "value": "5"}},
+     "action": {"action": "allow"}}
+  ]
+}

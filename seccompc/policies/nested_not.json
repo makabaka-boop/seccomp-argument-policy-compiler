@@ -1,0 +1,45 @@
+{
+  "default": {"action": "errno", "errno": 13},
+  "rules": [
+    {"name": "probe-write-result", "syscall": 1,
+     "condition": {"eq": {"arg": 0, "value": "3"}},
+     "action": {"action": "allow"}},
+    {"name": "probe-exit", "syscall": 231,
+     "action": {"action": "allow"}},
+
+    {"name": "getpid-not-or", "syscall": 39,
+     "condition": {"not": {"or": [
+       {"eq": {"arg": 0, "value": "5"}},
+       {"eq": {"arg": 0, "value": "7"}}]}},
+     "action": {"action": "allow"}},
+
+    {"name": "getuid-double-not", "syscall": 102,
+     "condition": {"not": {"not": {"eq": {"arg": 0, "value": "42"}}}},
+     "action": {"action": "allow"}},
+
+    {"name": "getgid-not-and-ranges", "syscall": 104,
+     "condition": {"not": {"and": [
+       {"in_range": {"arg": 0, "lo": "10", "hi": "20"}},
+       {"in_range": {"arg": 0, "lo": "15", "hi": "25"}}]}},
+     "action": {"action": "errno", "errno": 43}},
+
+    {"name": "geteuid-not-and-two-args", "syscall": 107,
+     "condition": {"not": {"and": [
+       {"eq": {"arg": 0, "value": "1"}},
+       {"eq": {"arg": 1, "value": "2"}}]}},
+     "action": {"action": "allow"}},
+
+    {"name": "getppid-triple-not-range", "syscall": 110,
+     "condition": {"not": {"not": {"not":
+       {"in_range": {"arg": 0, "lo": "100", "hi": "200"}}}}},
+     "action": {"action": "errno", "errno": 44}},
+
+    {"name": "getegid-not-nested-or-and", "syscall": 108,
+     "condition": {"not": {"or": [
+       {"and": [
+         {"in_range": {"arg": 0, "lo": "0", "hi": "10"}},
+         {"not": {"eq": {"arg": 0, "value": "5"}}}]},
+       {"eq": {"arg": 0, "value": "100"}}]}},
+     "action": {"action": "errno", "errno": 45}}
+  ]
+}

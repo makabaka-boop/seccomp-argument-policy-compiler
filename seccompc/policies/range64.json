@@ -1,0 +1,37 @@
+{
+  "default": {"action": "errno", "errno": 13},
+  "rules": [
+    {"name": "probe-write-result", "syscall": 1,
+     "condition": {"eq": {"arg": 0, "value": "3"}},
+     "action": {"action": "allow"}},
+    {"name": "probe-exit", "syscall": 231,
+     "action": {"action": "allow"}},
+
+    {"name": "getpid-arg0-range-crossing-2^32", "syscall": 39,
+     "condition": {"in_range": {"arg": 0, "lo": "4294967290", "hi": "4294967300"}},
+     "action": {"action": "allow"}},
+
+    {"name": "getuid-arg0-eq-u64-max", "syscall": 102,
+     "condition": {"eq": {"arg": 0, "value": "18446744073709551615"}},
+     "action": {"action": "allow"}},
+
+    {"name": "getgid-arg0-top-of-u64-range", "syscall": 104,
+     "condition": {"in_range": {"arg": 0,
+       "lo": "18446744073709551610", "hi": "18446744073709551615"}},
+     "action": {"action": "errno", "errno": 95}},
+
+    {"name": "geteuid-two-arg-and", "syscall": 107,
+     "condition": {"and": [
+       {"in_range": {"arg": 0, "lo": "4294967296", "hi": "4294967297"}},
+       {"eq": {"arg": 1, "value": "9223372036854775808"}}]},
+     "action": {"action": "allow"}},
+
+    {"name": "getegid-arg0-eq-2^32", "syscall": 108,
+     "condition": {"eq": {"arg": 0, "value": "4294967296"}},
+     "action": {"action": "allow"}},
+
+    {"name": "gettid-arg0-small-range-errno", "syscall": 186,
+     "condition": {"in_range": {"arg": 0, "lo": "0", "hi": "100"}},
+     "action": {"action": "errno", "errno": 42}}
+  ]
+}
