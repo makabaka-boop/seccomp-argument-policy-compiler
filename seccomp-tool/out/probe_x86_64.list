@@ -1,0 +1,163 @@
+# seccomp classic BPF filter
+# arch       : x86_64 (AUDIT_ARCH=0xc000003e, x32 bit rejected)
+# default    : ERRNO(5)
+# rules      : 12 (first match wins)
+#   rule  0: syscall=39   action=ALLOW        comparisons=0
+#   rule  1: syscall=3    action=ERRNO(92)    comparisons=1
+#   rule  2: syscall=33   action=ERRNO(77)    comparisons=2
+#   rule  3: syscall=28   action=ERRNO(88)    comparisons=1
+#   rule  4: syscall=28   action=ERRNO(66)    comparisons=2
+#   rule  5: syscall=33   action=ALLOW        comparisons=2
+#   rule  6: syscall=3    action=ERRNO(99)    comparisons=1
+#   rule  7: syscall=3    action=ERRNO(78)    comparisons=2
+#   rule  8: syscall=60   action=ALLOW        comparisons=0
+#   rule  9: syscall=231  action=ALLOW        comparisons=0
+#   rule 10: syscall=1    action=ALLOW        comparisons=0
+#   rule 11: syscall=157  action=ALLOW        comparisons=0
+# insns      : 102 (kernel limit 4096)
+# trampolines: 0 (inserted for jumps > 255)
+# comparison limit: 30 leaf comparisons per rule
+#
+# column mapping: <idx> <raw>  mnem operands | provenance
+   0 2000000004000000  ld   [seccomp_data.arch]                ; arch gate (audit number mismatch => KILL)
+   1 150000633e0000c0  jeq  0xc000003e, jt +0->2, jf +99->101  ; arch gate (audit number mismatch => KILL)
+   2 2000000000000000  ld   [seccomp_data.nr]                  ; reject x32 ABI syscall bit 0x40000000
+   3 25006100ffffff3f  jgt  0x3fffffff, jt +97->101, jf +0->4  ; reject x32 ABI syscall bit 0x40000000
+   4 1500000127000000  jeq  0x00000027, jt +0->5, jf +1->6     ; rule 0 syscall match test
+   5 0500000058000000  ja   +88 -> 94                          
+   6 2000000000000000  ld   [seccomp_data.nr]                  ; rule 1 syscall match test
+   7 1500000403000000  jeq  0x00000003, jt +0->8, jf +4->12    ; rule 1 syscall match test
+   8 2000000014000000  ld   [args[0].hi]                       ; rule 1 comparison when
+   9 1500000200000000  jeq  0x00000000, jt +0->10, jf +2->12   
+  10 2000000010000000  ld   [args[0].lo]                       ; rule 1 comparison when
+  11 150053003f420f00  jeq  0x000f423f, jt +83->95, jf +0->12  
+  12 2000000000000000  ld   [seccomp_data.nr]                  ; rule 2 syscall match test
+  13 1500000821000000  jeq  0x00000021, jt +0->14, jf +8->22   ; rule 2 syscall match test
+  14 2000000014000000  ld   [args[0].hi]                       ; rule 2 comparison when[0]
+  15 1500000600000000  jeq  0x00000000, jt +0->16, jf +6->22   
+  16 2000000010000000  ld   [args[0].lo]                       ; rule 2 comparison when[0]
+  17 150000044d000000  jeq  0x0000004d, jt +0->18, jf +4->22   
+  18 200000001c000000  ld   [args[1].hi]                       ; rule 2 comparison when.tail[0]
+  19 1500000200000000  jeq  0x00000000, jt +0->20, jf +2->22   
+  20 2000000018000000  ld   [args[1].lo]                       ; rule 2 comparison when.tail[0]
+  21 15004a0058000000  jeq  0x00000058, jt +74->96, jf +0->22  
+  22 2000000000000000  ld   [seccomp_data.nr]                  ; rule 3 syscall match test
+  23 1500000a1c000000  jeq  0x0000001c, jt +0->24, jf +10->34  ; rule 3 syscall match test
+  24 2000000024000000  ld   [args[2].hi]                       ; rule 3 comparison when.ge
+  25 3500000800000000  jge  0x00000000, jt +0->26, jf +8->34   
+  26 1500000200000000  jeq  0x00000000, jt +0->27, jf +2->29   
+  27 2000000020000000  ld   [args[2].lo]                       ; rule 3 comparison when.ge
+  28 3500000500000000  jge  0x00000000, jt +0->29, jf +5->34   
+  29 2000000024000000  ld   [args[2].hi]                       ; rule 3 comparison when.le
+  30 2500030000000000  jgt  0x00000000, jt +3->34, jf +0->31   
+  31 1500004100000000  jeq  0x00000000, jt +0->32, jf +65->97  
+  32 2000000020000000  ld   [args[2].lo]                       ; rule 3 comparison when.le
+  33 2500003f04000000  jgt  0x00000004, jt +0->34, jf +63->97  
+  34 2000000000000000  ld   [seccomp_data.nr]                  ; rule 4 syscall match test
+  35 1500000a1c000000  jeq  0x0000001c, jt +0->36, jf +10->46  ; rule 4 syscall match test
+  36 2000000024000000  ld   [args[2].hi]                       ; rule 4 comparison when.not[0]
+  37 2500080000000000  jgt  0x00000000, jt +8->46, jf +0->38   
+  38 1500000200000000  jeq  0x00000000, jt +0->39, jf +2->41   
+  39 2000000020000000  ld   [args[2].lo]                       ; rule 4 comparison when.not[0]
+  40 2500050008000000  jgt  0x00000008, jt +5->46, jf +0->41   
+  41 2000000024000000  ld   [args[2].hi]                       ; rule 4 comparison when.not.tail[0].not
+  42 2500030000000000  jgt  0x00000000, jt +3->46, jf +0->43   
+  43 1500003600000000  jeq  0x00000000, jt +0->44, jf +54->98  
+  44 2000000020000000  ld   [args[2].lo]                       ; rule 4 comparison when.not.tail[0].not
+  45 2500003409000000  jgt  0x00000009, jt +0->46, jf +52->98  
+  46 2000000000000000  ld   [seccomp_data.nr]                  ; rule 5 syscall match test
+  47 1500000a21000000  jeq  0x00000021, jt +0->48, jf +10->58  ; rule 5 syscall match test
+  48 2000000014000000  ld   [args[0].hi]                       ; rule 5 comparison when[0]
+  49 3500000300000000  jge  0x00000000, jt +0->50, jf +3->53   
+  50 1500000700000000  jeq  0x00000000, jt +0->51, jf +7->58   
+  51 2000000010000000  ld   [args[0].lo]                       ; rule 5 comparison when[0]
+  52 3500050064000000  jge  0x00000064, jt +5->58, jf +0->53   
+  53 200000001c000000  ld   [args[1].hi]                       ; rule 5 comparison when.tail[0]
+  54 3500002700000000  jge  0x00000000, jt +0->55, jf +39->94  
+  55 1500000200000000  jeq  0x00000000, jt +0->56, jf +2->58   
+  56 2000000018000000  ld   [args[1].lo]                       ; rule 5 comparison when.tail[0]
+  57 3500002464000000  jge  0x00000064, jt +0->58, jf +36->94  
+  58 2000000000000000  ld   [seccomp_data.nr]                  ; rule 6 syscall match test
+  59 1500000a03000000  jeq  0x00000003, jt +0->60, jf +10->70  ; rule 6 syscall match test
+  60 200000001c000000  ld   [args[1].hi]                       ; rule 6 comparison when.ge
+  61 3500000800000000  jge  0x00000000, jt +0->62, jf +8->70   
+  62 1500000200000000  jeq  0x00000000, jt +0->63, jf +2->65   
+  63 2000000018000000  ld   [args[1].lo]                       ; rule 6 comparison when.ge
+  64 35000005e8030000  jge  0x000003e8, jt +0->65, jf +5->70   
+  65 200000001c000000  ld   [args[1].hi]                       ; rule 6 comparison when.le
+  66 2500030000000000  jgt  0x00000000, jt +3->70, jf +0->67   
+  67 1500001f00000000  jeq  0x00000000, jt +0->68, jf +31->99  
+  68 2000000018000000  ld   [args[1].lo]                       ; rule 6 comparison when.le
+  69 2500001d88130000  jgt  0x00001388, jt +0->70, jf +29->99  
+  70 2000000000000000  ld   [seccomp_data.nr]                  ; rule 7 syscall match test
+  71 1500000903000000  jeq  0x00000003, jt +0->72, jf +9->81   ; rule 7 syscall match test
+  72 200000001c000000  ld   [args[1].hi]                       ; rule 7 comparison when[0]
+  73 3500000300000000  jge  0x00000000, jt +0->74, jf +3->77   
+  74 1500000600000000  jeq  0x00000000, jt +0->75, jf +6->81   
+  75 2000000018000000  ld   [args[1].lo]                       ; rule 7 comparison when[0]
+  76 3500040064000000  jge  0x00000064, jt +4->81, jf +0->77   
+  77 200000001c000000  ld   [args[1].hi]                       ; rule 7 comparison when.tail[0].not
+  78 1500001500000000  jeq  0x00000000, jt +0->79, jf +21->100 
+  79 2000000018000000  ld   [args[1].lo]                       ; rule 7 comparison when.tail[0].not
+  80 1500001332000000  jeq  0x00000032, jt +0->81, jf +19->100 
+  81 2000000000000000  ld   [seccomp_data.nr]                  ; rule 8 syscall match test
+  82 150000013c000000  jeq  0x0000003c, jt +0->83, jf +1->84   ; rule 8 syscall match test
+  83 050000000a000000  ja   +10 -> 94                          
+  84 2000000000000000  ld   [seccomp_data.nr]                  ; rule 9 syscall match test
+  85 15000001e7000000  jeq  0x000000e7, jt +0->86, jf +1->87   ; rule 9 syscall match test
+  86 0500000007000000  ja   +7 -> 94                           
+  87 2000000000000000  ld   [seccomp_data.nr]                  ; rule 10 syscall match test
+  88 1500000101000000  jeq  0x00000001, jt +0->89, jf +1->90   ; rule 10 syscall match test
+  89 0500000004000000  ja   +4 -> 94                           
+  90 2000000000000000  ld   [seccomp_data.nr]                  ; rule 11 syscall match test
+  91 150000019d000000  jeq  0x0000009d, jt +0->92, jf +1->93   ; rule 11 syscall match test
+  92 0500000001000000  ja   +1 -> 94                           
+  93 0600000005000500  ret  ERRNO(5)                           ; ACTION ERRNO(5)
+  94 060000000000ff7f  ret  ALLOW                              ; ACTION ALLOW
+  95 060000005c000500  ret  ERRNO(92)                          ; ACTION ERRNO(92)
+  96 060000004d000500  ret  ERRNO(77)                          ; ACTION ERRNO(77)
+  97 0600000058000500  ret  ERRNO(88)                          ; ACTION ERRNO(88)
+  98 0600000042000500  ret  ERRNO(66)                          ; ACTION ERRNO(66)
+  99 0600000063000500  ret  ERRNO(99)                          ; ACTION ERRNO(99)
+ 100 060000004e000500  ret  ERRNO(78)                          ; ACTION ERRNO(78)
+ 101 0600000000000080  ret  KILL_PROCESS                       ; ACTION KILL_PROCESS
+
+# === rule provenance map (instruction indices) ===
+# rule 0 (syscall=39, ALLOW): dispatch insns 4
+# rule 1 (syscall=3, ERRNO(92)): dispatch insns 6,7
+#        insn    8  when
+#        insn   10  when
+# rule 2 (syscall=33, ERRNO(77)): dispatch insns 12,13
+#        insn   14  when[0]
+#        insn   16  when[0]
+#        insn   18  when.tail[0]
+#        insn   20  when.tail[0]
+# rule 3 (syscall=28, ERRNO(88)): dispatch insns 22,23
+#        insn   24  when.ge
+#        insn   27  when.ge
+#        insn   29  when.le
+#        insn   32  when.le
+# rule 4 (syscall=28, ERRNO(66)): dispatch insns 34,35
+#        insn   36  when.not[0]
+#        insn   39  when.not[0]
+#        insn   41  when.not.tail[0].not
+#        insn   44  when.not.tail[0].not
+# rule 5 (syscall=33, ALLOW): dispatch insns 46,47
+#        insn   48  when[0]
+#        insn   51  when[0]
+#        insn   53  when.tail[0]
+#        insn   56  when.tail[0]
+# rule 6 (syscall=3, ERRNO(99)): dispatch insns 58,59
+#        insn   60  when.ge
+#        insn   63  when.ge
+#        insn   65  when.le
+#        insn   68  when.le
+# rule 7 (syscall=3, ERRNO(78)): dispatch insns 70,71
+#        insn   72  when[0]
+#        insn   75  when[0]
+#        insn   77  when.tail[0].not
+#        insn   79  when.tail[0].not
+# rule 8 (syscall=60, ALLOW): dispatch insns 81,82
+# rule 9 (syscall=231, ALLOW): dispatch insns 84,85
+# rule 10 (syscall=1, ALLOW): dispatch insns 87,88
+# rule 11 (syscall=157, ALLOW): dispatch insns 90,91

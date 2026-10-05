@@ -1,0 +1,172 @@
+{
+  "arch": "x86_64",
+  "audit_arch": 3221225534,
+  "default": "KILL_PROCESS",
+  "rules": [
+    {
+      "index": 0,
+      "syscall": 39,
+      "action": "ERRNO(123)",
+      "comparisons": 30
+    },
+    {
+      "index": 1,
+      "syscall": 39,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 2,
+      "syscall": 2,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 3,
+      "syscall": 4,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 4,
+      "syscall": 5,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 5,
+      "syscall": 6,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 6,
+      "syscall": 8,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 7,
+      "syscall": 9,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 8,
+      "syscall": 10,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 9,
+      "syscall": 11,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 10,
+      "syscall": 12,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 11,
+      "syscall": 13,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 12,
+      "syscall": 14,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 13,
+      "syscall": 16,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 14,
+      "syscall": 20,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 15,
+      "syscall": 21,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 16,
+      "syscall": 24,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 17,
+      "syscall": 27,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 18,
+      "syscall": 32,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 19,
+      "syscall": 35,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 20,
+      "syscall": 41,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 21,
+      "syscall": 45,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 22,
+      "syscall": 231,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 23,
+      "syscall": 60,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 24,
+      "syscall": 1,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 25,
+      "syscall": 293,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 26,
+      "syscall": 157,
+      "action": "ALLOW",
+      "comparisons": 0
+    }
+  ],
+  "instructions": 414,
+  "long_jump_trampolines": 27,
+  "filter_bytes": 3312
+}

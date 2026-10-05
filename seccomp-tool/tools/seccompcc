@@ -1,0 +1,184 @@
+#!/usr/bin/env python3
+"""seccomp-policy-compiler
+
+Compile a JSON seccomp policy into a loadable classic BPF filter without
+libseccomp. Emits three artifacts:
+
+  <stem>.filter   raw struct sock_filter[] (8 insn bytes each, host-endian:
+                  little endian on x86_64/aarch64)
+  <stem>.list     annotated disassembly + rule/provenance mapping
+  <stem>.stats    machine-readable summary
+
+Usage:
+  seccompcc [-a x86_64] policy.json [-o OUTBASE]
+  seccompcc --version
+"""
+
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import bpf as B
+from compiler import (compile_policy, pack_filter, parse_policy, PolicyError,
+                      ARCHES, MAX_CONDITIONS_PER_RULE, action_name)
+
+
+MNEMONICS = {
+    B.LD_ABS_W: "ld",
+    B.JMP_JA: "ja",
+    B.JMP_JEQ_K: "jeq",
+    B.JMP_JGT_K: "jgt",
+    B.JMP_JGE_K: "jge",
+    B.RET_K: "ret",
+    B.ALU_AND_K: "and",
+    B.ALU_ADD_X: "addx",
+    B.MISC_TAX: "tax",
+    B.MISC_TXA: "txa",
+}
+
+FIELD_NAMES = {
+    B.OFF_NR: "seccomp_data.nr",
+    B.OFF_ARCH: "seccomp_data.arch",
+    B.OFF_INSTRUCTION_POINTER: "seccomp_data.ip",
+}
+for a in range(6):
+    FIELD_NAMES[B.OFF_ARGS + 8 * a] = "args[%d].lo" % a
+    FIELD_NAMES[B.OFF_ARGS + 8 * a + 4] = "args[%d].hi" % a
+
+
+def ret_meaning(k):
+    if k == B.SECCOMP_RET_ALLOW:
+        return "ALLOW"
+    if k == B.SECCOMP_RET_KILL_PROCESS:
+        return "KILL_PROCESS"
+    if (k & 0xFFFF0000) == B.SECCOMP_RET_ERRNO:
+        return "ERRNO(%d)" % (k & 0xFFFF)
+    return "0x%08x" % k
+
+
+def provenance(note):
+    if not note:
+        return ""
+    kind = note[0]
+    if kind == "arch":
+        return "; arch gate (audit number mismatch => KILL)"
+    if kind == "x32":
+        return "; reject x32 ABI syscall bit 0x40000000"
+    if kind == "dispatch":
+        return "; rule %d syscall match test" % note[1]
+    if kind == "ret":
+        return "; ACTION %s" % note[1]
+    if kind == "cmp":
+        return "; rule %d comparison %s" % (note[1], note[2])
+    if kind == "bool":
+        return "; rule %d boolean %s" % (note[1], note[2])
+    if kind == "tramp":
+        return "; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)"
+    return ""
+
+
+def disassemble(policy, insns, n_tramp):
+    lines = []
+    lines.append("# seccomp classic BPF filter")
+    lines.append("# arch       : %s (AUDIT_ARCH=0x%08x%s)" % (
+        policy["arch_name"], policy["arch"]["audit"],
+        ", x32 bit rejected" if policy["arch"]["x32_bit"] else ""))
+    lines.append("# default    : %s" % action_name(policy["default"]))
+    lines.append("# rules      : %d (first match wins)" % len(policy["rules"]))
+    for i, r in enumerate(policy["rules"]):
+        lines.append("#   rule %2d: syscall=%-4d action=%-12s comparisons=%d"
+                     % (i, r["nr"], action_name(r["action"]), r["ncond"]))
+    lines.append("# insns      : %d (kernel limit 4096)" % len(insns))
+    lines.append("# trampolines: %d (inserted for jumps > 255)" % n_tramp)
+    lines.append("# comparison limit: %d leaf comparisons per rule"
+                 % MAX_CONDITIONS_PER_RULE)
+    lines.append("#")
+    lines.append("# column mapping: <idx> <raw>  mnem operands | provenance")
+    for idx, ins in enumerate(insns):
+        m = MNEMONICS.get(ins.code, ".word 0x%02x" % ins.code)
+        oper = ""
+        if ins.code == B.LD_ABS_W:
+            oper = "[%s]" % FIELD_NAMES.get(ins.k, "off=%d" % ins.k)
+        elif ins.code == B.JMP_JA:
+            oper = "+%d -> %d" % (ins.k, idx + 1 + ins.k)
+        elif ins.code in (B.JMP_JEQ_K, B.JMP_JGT_K, B.JMP_JGE_K):
+            oper = ("0x%08x, jt +%d->%d, jf +%d->%d"
+                    % (ins.k, ins.jt, idx + 1 + ins.jt,
+                       ins.jf, idx + 1 + ins.jf))
+        elif ins.code == B.RET_K:
+            oper = ret_meaning(ins.k)
+        elif ins.code in (B.ALU_AND_K,):
+            oper = "0x%08x" % ins.k
+        raw = ins.packed().hex()
+        lines.append("%4d %s  %-4s %-34s %s"
+                     % (idx, raw, m, oper, provenance(ins.note)))
+    # structured rule->instruction map
+    lines.append("")
+    lines.append("# === rule provenance map (instruction indices) ===")
+    per_rule = {i: {"dispatch": [], "compare": []}
+                for i in range(len(policy["rules"]))}
+    for idx, ins in enumerate(insns):
+        n = ins.note
+        if not n:
+            continue
+        if n[0] == "dispatch":
+            per_rule[n[1]]["dispatch"].append(idx)
+        elif n[0] in ("cmp", "bool"):
+            per_rule[n[1]]["compare"].append((idx, n[2]))
+    for i, r in enumerate(policy["rules"]):
+        d = per_rule[i]
+        lines.append("# rule %d (syscall=%d, %s): dispatch insns %s"
+                     % (i, r["nr"], action_name(r["action"]),
+                        ",".join(map(str, d["dispatch"])) or "-"))
+        for idx, path in d["compare"]:
+            lines.append("#        insn %4d  %s" % (idx, path))
+    return "\n".join(lines) + "\n"
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(prog="seccompcc")
+    ap.add_argument("policy", help="JSON policy file")
+    ap.add_argument("-o", "--outbase",
+                    help="output basename (default: policy path without ext)")
+    args = ap.parse_args(argv)
+
+    with open(args.policy, "r", encoding="utf-8") as f:
+        text = f.read()
+    try:
+        policy, insns, n_tramp = compile_policy(text)
+    except PolicyError as e:
+        print("seccompcc: error: %s" % e, file=sys.stderr)
+        return 2
+
+    base = args.outbase or os.path.splitext(args.policy)[0]
+    blob = pack_filter(insns)
+    with open(base + ".filter", "wb") as f:
+        f.write(blob)
+    with open(base + ".list", "w", encoding="utf-8") as f:
+        f.write(disassemble(policy, insns, n_tramp))
+    stats = {
+        "arch": policy["arch_name"],
+        "audit_arch": policy["arch"]["audit"],
+        "default": action_name(policy["default"]),
+        "rules": [
+            {"index": i, "syscall": r["nr"],
+             "action": action_name(r["action"]),
+             "comparisons": r["ncond"]}
+            for i, r in enumerate(policy["rules"])],
+        "instructions": len(insns),
+        "long_jump_trampolines": n_tramp,
+        "filter_bytes": len(blob),
+    }
+    with open(base + ".stats", "w", encoding="utf-8") as f:
+        json.dump(stats, f, indent=2)
+        f.write("\n")
+    print("compiled %s -> %s.filter (%d insns, %d long-jump trampolines)"
+          % (args.policy, base, len(insns), n_tramp))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

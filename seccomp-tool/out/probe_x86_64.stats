@@ -1,0 +1,82 @@
+{
+  "arch": "x86_64",
+  "audit_arch": 3221225534,
+  "default": "ERRNO(5)",
+  "rules": [
+    {
+      "index": 0,
+      "syscall": 39,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 1,
+      "syscall": 3,
+      "action": "ERRNO(92)",
+      "comparisons": 1
+    },
+    {
+      "index": 2,
+      "syscall": 33,
+      "action": "ERRNO(77)",
+      "comparisons": 2
+    },
+    {
+      "index": 3,
+      "syscall": 28,
+      "action": "ERRNO(88)",
+      "comparisons": 1
+    },
+    {
+      "index": 4,
+      "syscall": 28,
+      "action": "ERRNO(66)",
+      "comparisons": 2
+    },
+    {
+      "index": 5,
+      "syscall": 33,
+      "action": "ALLOW",
+      "comparisons": 2
+    },
+    {
+      "index": 6,
+      "syscall": 3,
+      "action": "ERRNO(99)",
+      "comparisons": 1
+    },
+    {
+      "index": 7,
+      "syscall": 3,
+      "action": "ERRNO(78)",
+      "comparisons": 2
+    },
+    {
+      "index": 8,
+      "syscall": 60,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 9,
+      "syscall": 231,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 10,
+      "syscall": 1,
+      "action": "ALLOW",
+      "comparisons": 0
+    },
+    {
+      "index": 11,
+      "syscall": 157,
+      "action": "ALLOW",
+      "comparisons": 0
+    }
+  ],
+  "instructions": 102,
+  "long_jump_trampolines": 0,
+  "filter_bytes": 816
+}

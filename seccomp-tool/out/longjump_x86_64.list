@@ -1,0 +1,599 @@
+# seccomp classic BPF filter
+# arch       : x86_64 (AUDIT_ARCH=0xc000003e, x32 bit rejected)
+# default    : KILL_PROCESS
+# rules      : 27 (first match wins)
+#   rule  0: syscall=39   action=ERRNO(123)   comparisons=30
+#   rule  1: syscall=39   action=ALLOW        comparisons=0
+#   rule  2: syscall=2    action=ALLOW        comparisons=0
+#   rule  3: syscall=4    action=ALLOW        comparisons=0
+#   rule  4: syscall=5    action=ALLOW        comparisons=0
+#   rule  5: syscall=6    action=ALLOW        comparisons=0
+#   rule  6: syscall=8    action=ALLOW        comparisons=0
+#   rule  7: syscall=9    action=ALLOW        comparisons=0
+#   rule  8: syscall=10   action=ALLOW        comparisons=0
+#   rule  9: syscall=11   action=ALLOW        comparisons=0
+#   rule 10: syscall=12   action=ALLOW        comparisons=0
+#   rule 11: syscall=13   action=ALLOW        comparisons=0
+#   rule 12: syscall=14   action=ALLOW        comparisons=0
+#   rule 13: syscall=16   action=ALLOW        comparisons=0
+#   rule 14: syscall=20   action=ALLOW        comparisons=0
+#   rule 15: syscall=21   action=ALLOW        comparisons=0
+#   rule 16: syscall=24   action=ALLOW        comparisons=0
+#   rule 17: syscall=27   action=ALLOW        comparisons=0
+#   rule 18: syscall=32   action=ALLOW        comparisons=0
+#   rule 19: syscall=35   action=ALLOW        comparisons=0
+#   rule 20: syscall=41   action=ALLOW        comparisons=0
+#   rule 21: syscall=45   action=ALLOW        comparisons=0
+#   rule 22: syscall=231  action=ALLOW        comparisons=0
+#   rule 23: syscall=60   action=ALLOW        comparisons=0
+#   rule 24: syscall=1    action=ALLOW        comparisons=0
+#   rule 25: syscall=293  action=ALLOW        comparisons=0
+#   rule 26: syscall=157  action=ALLOW        comparisons=0
+# insns      : 414 (kernel limit 4096)
+# trampolines: 27 (inserted for jumps > 255)
+# comparison limit: 30 leaf comparisons per rule
+#
+# column mapping: <idx> <raw>  mnem operands | provenance
+   0 2000000004000000  ld   [seccomp_data.arch]                ; arch gate (audit number mismatch => KILL)
+   1 150001003e0000c0  jeq  0xc000003e, jt +1->3, jf +0->2     ; arch gate (audit number mismatch => KILL)
+   2 050000009a010000  ja   +410 -> 413                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+   3 2000000000000000  ld   [seccomp_data.nr]                  ; reject x32 ABI syscall bit 0x40000000
+   4 25000001ffffff3f  jgt  0x3fffffff, jt +0->5, jf +1->6     ; reject x32 ABI syscall bit 0x40000000
+   5 0500000097010000  ja   +407 -> 413                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+   6 1500010027000000  jeq  0x00000027, jt +1->8, jf +0->7     ; rule 0 syscall match test
+   7 0500000044010000  ja   +324 -> 332                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+   8 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when[0].ge
+   9 3500000a01000000  jge  0x00000001, jt +0->10, jf +10->20  
+  10 1500000201000000  jeq  0x00000001, jt +0->11, jf +2->13   
+  11 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when[0].ge
+  12 35000007e8030000  jge  0x000003e8, jt +0->13, jf +7->20   
+  13 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when[0].le
+  14 2500050001000000  jgt  0x00000001, jt +5->20, jf +0->15   
+  15 1500010001000000  jeq  0x00000001, jt +1->17, jf +0->16   
+  16 050000008a010000  ja   +394 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  17 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when[0].le
+  18 25000100ef030000  jgt  0x000003ef, jt +1->20, jf +0->19   
+  19 0500000087010000  ja   +391 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  20 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail[0].ge
+  21 3500000a01000000  jge  0x00000001, jt +0->22, jf +10->32  
+  22 1500000201000000  jeq  0x00000001, jt +0->23, jf +2->25   
+  23 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail[0].ge
+  24 35000007e9030000  jge  0x000003e9, jt +0->25, jf +7->32   
+  25 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail[0].le
+  26 2500050001000000  jgt  0x00000001, jt +5->32, jf +0->27   
+  27 1500010001000000  jeq  0x00000001, jt +1->29, jf +0->28   
+  28 050000007e010000  ja   +382 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  29 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail[0].le
+  30 25000100f0030000  jgt  0x000003f0, jt +1->32, jf +0->31   
+  31 050000007b010000  ja   +379 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  32 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail[0].ge
+  33 3500000a01000000  jge  0x00000001, jt +0->34, jf +10->44  
+  34 1500000201000000  jeq  0x00000001, jt +0->35, jf +2->37   
+  35 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail[0].ge
+  36 35000007ea030000  jge  0x000003ea, jt +0->37, jf +7->44   
+  37 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail[0].le
+  38 2500050001000000  jgt  0x00000001, jt +5->44, jf +0->39   
+  39 1500010001000000  jeq  0x00000001, jt +1->41, jf +0->40   
+  40 0500000072010000  ja   +370 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  41 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail[0].le
+  42 25000100f1030000  jgt  0x000003f1, jt +1->44, jf +0->43   
+  43 050000006f010000  ja   +367 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  44 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail[0].ge
+  45 3500000a01000000  jge  0x00000001, jt +0->46, jf +10->56  
+  46 1500000201000000  jeq  0x00000001, jt +0->47, jf +2->49   
+  47 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail[0].ge
+  48 35000007eb030000  jge  0x000003eb, jt +0->49, jf +7->56   
+  49 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail[0].le
+  50 2500050001000000  jgt  0x00000001, jt +5->56, jf +0->51   
+  51 1500010001000000  jeq  0x00000001, jt +1->53, jf +0->52   
+  52 0500000066010000  ja   +358 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  53 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail[0].le
+  54 25000100f2030000  jgt  0x000003f2, jt +1->56, jf +0->55   
+  55 0500000063010000  ja   +355 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  56 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail[0].ge
+  57 3500000a01000000  jge  0x00000001, jt +0->58, jf +10->68  
+  58 1500000201000000  jeq  0x00000001, jt +0->59, jf +2->61   
+  59 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail[0].ge
+  60 35000007ec030000  jge  0x000003ec, jt +0->61, jf +7->68   
+  61 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail[0].le
+  62 2500050001000000  jgt  0x00000001, jt +5->68, jf +0->63   
+  63 1500010001000000  jeq  0x00000001, jt +1->65, jf +0->64   
+  64 050000005a010000  ja   +346 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  65 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail[0].le
+  66 25000100f3030000  jgt  0x000003f3, jt +1->68, jf +0->67   
+  67 0500000057010000  ja   +343 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  68 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail[0].ge
+  69 3500000a01000000  jge  0x00000001, jt +0->70, jf +10->80  
+  70 1500000201000000  jeq  0x00000001, jt +0->71, jf +2->73   
+  71 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail[0].ge
+  72 35000007ed030000  jge  0x000003ed, jt +0->73, jf +7->80   
+  73 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail[0].le
+  74 2500050001000000  jgt  0x00000001, jt +5->80, jf +0->75   
+  75 1500010001000000  jeq  0x00000001, jt +1->77, jf +0->76   
+  76 050000004e010000  ja   +334 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  77 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail[0].le
+  78 25000100f4030000  jgt  0x000003f4, jt +1->80, jf +0->79   
+  79 050000004b010000  ja   +331 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  80 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail[0].ge
+  81 3500000a01000000  jge  0x00000001, jt +0->82, jf +10->92  
+  82 1500000201000000  jeq  0x00000001, jt +0->83, jf +2->85   
+  83 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail[0].ge
+  84 35000007ee030000  jge  0x000003ee, jt +0->85, jf +7->92   
+  85 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail[0].le
+  86 2500050001000000  jgt  0x00000001, jt +5->92, jf +0->87   
+  87 1500010001000000  jeq  0x00000001, jt +1->89, jf +0->88   
+  88 0500000042010000  ja   +322 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  89 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail[0].le
+  90 25000100f5030000  jgt  0x000003f5, jt +1->92, jf +0->91   
+  91 050000003f010000  ja   +319 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+  92 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail[0].ge
+  93 3500000a01000000  jge  0x00000001, jt +0->94, jf +10->104 
+  94 1500000201000000  jeq  0x00000001, jt +0->95, jf +2->97   
+  95 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail[0].ge
+  96 35000007ef030000  jge  0x000003ef, jt +0->97, jf +7->104  
+  97 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail[0].le
+  98 2500050001000000  jgt  0x00000001, jt +5->104, jf +0->99  
+  99 1500010001000000  jeq  0x00000001, jt +1->101, jf +0->100 
+ 100 0500000036010000  ja   +310 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 101 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail[0].le
+ 102 25000100f6030000  jgt  0x000003f6, jt +1->104, jf +0->103 
+ 103 0500000033010000  ja   +307 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 104 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 105 3500000a01000000  jge  0x00000001, jt +0->106, jf +10->116 
+ 106 1500000201000000  jeq  0x00000001, jt +0->107, jf +2->109 
+ 107 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 108 35000007f0030000  jge  0x000003f0, jt +0->109, jf +7->116 
+ 109 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 110 2500050001000000  jgt  0x00000001, jt +5->116, jf +0->111 
+ 111 1500010001000000  jeq  0x00000001, jt +1->113, jf +0->112 
+ 112 050000002a010000  ja   +298 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 113 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 114 25000100f7030000  jgt  0x000003f7, jt +1->116, jf +0->115 
+ 115 0500000027010000  ja   +295 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 116 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 117 3500000a01000000  jge  0x00000001, jt +0->118, jf +10->128 
+ 118 1500000201000000  jeq  0x00000001, jt +0->119, jf +2->121 
+ 119 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 120 35000007f1030000  jge  0x000003f1, jt +0->121, jf +7->128 
+ 121 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 122 2500050001000000  jgt  0x00000001, jt +5->128, jf +0->123 
+ 123 1500010001000000  jeq  0x00000001, jt +1->125, jf +0->124 
+ 124 050000001e010000  ja   +286 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 125 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 126 25000100f8030000  jgt  0x000003f8, jt +1->128, jf +0->127 
+ 127 050000001b010000  ja   +283 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 128 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 129 3500000a01000000  jge  0x00000001, jt +0->130, jf +10->140 
+ 130 1500000201000000  jeq  0x00000001, jt +0->131, jf +2->133 
+ 131 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 132 35000007f2030000  jge  0x000003f2, jt +0->133, jf +7->140 
+ 133 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 134 2500050001000000  jgt  0x00000001, jt +5->140, jf +0->135 
+ 135 1500010001000000  jeq  0x00000001, jt +1->137, jf +0->136 
+ 136 0500000012010000  ja   +274 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 137 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 138 25000100f9030000  jgt  0x000003f9, jt +1->140, jf +0->139 
+ 139 050000000f010000  ja   +271 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 140 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 141 3500000a01000000  jge  0x00000001, jt +0->142, jf +10->152 
+ 142 1500000201000000  jeq  0x00000001, jt +0->143, jf +2->145 
+ 143 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 144 35000007f3030000  jge  0x000003f3, jt +0->145, jf +7->152 
+ 145 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 146 2500050001000000  jgt  0x00000001, jt +5->152, jf +0->147 
+ 147 1500010001000000  jeq  0x00000001, jt +1->149, jf +0->148 
+ 148 0500000006010000  ja   +262 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 149 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 150 25000100fa030000  jgt  0x000003fa, jt +1->152, jf +0->151 
+ 151 0500000003010000  ja   +259 -> 411                        ; LONG-JUMP TRAMPOLINE (u8 branch range exceeded)
+ 152 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 153 3500000801000000  jge  0x00000001, jt +0->154, jf +8->162 
+ 154 1500000201000000  jeq  0x00000001, jt +0->155, jf +2->157 
+ 155 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 156 35000005f4030000  jge  0x000003f4, jt +0->157, jf +5->162 
+ 157 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 158 2500030001000000  jgt  0x00000001, jt +3->162, jf +0->159 
+ 159 150000fb01000000  jeq  0x00000001, jt +0->160, jf +251->411 
+ 160 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 161 250000f9fb030000  jgt  0x000003fb, jt +0->162, jf +249->411 
+ 162 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 163 3500000801000000  jge  0x00000001, jt +0->164, jf +8->172 
+ 164 1500000201000000  jeq  0x00000001, jt +0->165, jf +2->167 
+ 165 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 166 35000005f5030000  jge  0x000003f5, jt +0->167, jf +5->172 
+ 167 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 168 2500030001000000  jgt  0x00000001, jt +3->172, jf +0->169 
+ 169 150000f101000000  jeq  0x00000001, jt +0->170, jf +241->411 
+ 170 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 171 250000effc030000  jgt  0x000003fc, jt +0->172, jf +239->411 
+ 172 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 173 3500000801000000  jge  0x00000001, jt +0->174, jf +8->182 
+ 174 1500000201000000  jeq  0x00000001, jt +0->175, jf +2->177 
+ 175 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 176 35000005f6030000  jge  0x000003f6, jt +0->177, jf +5->182 
+ 177 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 178 2500030001000000  jgt  0x00000001, jt +3->182, jf +0->179 
+ 179 150000e701000000  jeq  0x00000001, jt +0->180, jf +231->411 
+ 180 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 181 250000e5fd030000  jgt  0x000003fd, jt +0->182, jf +229->411 
+ 182 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 183 3500000801000000  jge  0x00000001, jt +0->184, jf +8->192 
+ 184 1500000201000000  jeq  0x00000001, jt +0->185, jf +2->187 
+ 185 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 186 35000005f7030000  jge  0x000003f7, jt +0->187, jf +5->192 
+ 187 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 188 2500030001000000  jgt  0x00000001, jt +3->192, jf +0->189 
+ 189 150000dd01000000  jeq  0x00000001, jt +0->190, jf +221->411 
+ 190 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 191 250000dbfe030000  jgt  0x000003fe, jt +0->192, jf +219->411 
+ 192 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 193 3500000801000000  jge  0x00000001, jt +0->194, jf +8->202 
+ 194 1500000201000000  jeq  0x00000001, jt +0->195, jf +2->197 
+ 195 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 196 35000005f8030000  jge  0x000003f8, jt +0->197, jf +5->202 
+ 197 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 198 2500030001000000  jgt  0x00000001, jt +3->202, jf +0->199 
+ 199 150000d301000000  jeq  0x00000001, jt +0->200, jf +211->411 
+ 200 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 201 250000d1ff030000  jgt  0x000003ff, jt +0->202, jf +209->411 
+ 202 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 203 3500000801000000  jge  0x00000001, jt +0->204, jf +8->212 
+ 204 1500000201000000  jeq  0x00000001, jt +0->205, jf +2->207 
+ 205 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 206 35000005f9030000  jge  0x000003f9, jt +0->207, jf +5->212 
+ 207 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 208 2500030001000000  jgt  0x00000001, jt +3->212, jf +0->209 
+ 209 150000c901000000  jeq  0x00000001, jt +0->210, jf +201->411 
+ 210 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 211 250000c700040000  jgt  0x00000400, jt +0->212, jf +199->411 
+ 212 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 213 3500000801000000  jge  0x00000001, jt +0->214, jf +8->222 
+ 214 1500000201000000  jeq  0x00000001, jt +0->215, jf +2->217 
+ 215 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 216 35000005fa030000  jge  0x000003fa, jt +0->217, jf +5->222 
+ 217 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 218 2500030001000000  jgt  0x00000001, jt +3->222, jf +0->219 
+ 219 150000bf01000000  jeq  0x00000001, jt +0->220, jf +191->411 
+ 220 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 221 250000bd01040000  jgt  0x00000401, jt +0->222, jf +189->411 
+ 222 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 223 3500000801000000  jge  0x00000001, jt +0->224, jf +8->232 
+ 224 1500000201000000  jeq  0x00000001, jt +0->225, jf +2->227 
+ 225 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 226 35000005fb030000  jge  0x000003fb, jt +0->227, jf +5->232 
+ 227 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 228 2500030001000000  jgt  0x00000001, jt +3->232, jf +0->229 
+ 229 150000b501000000  jeq  0x00000001, jt +0->230, jf +181->411 
+ 230 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 231 250000b302040000  jgt  0x00000402, jt +0->232, jf +179->411 
+ 232 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 233 3500000801000000  jge  0x00000001, jt +0->234, jf +8->242 
+ 234 1500000201000000  jeq  0x00000001, jt +0->235, jf +2->237 
+ 235 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 236 35000005fc030000  jge  0x000003fc, jt +0->237, jf +5->242 
+ 237 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 238 2500030001000000  jgt  0x00000001, jt +3->242, jf +0->239 
+ 239 150000ab01000000  jeq  0x00000001, jt +0->240, jf +171->411 
+ 240 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 241 250000a903040000  jgt  0x00000403, jt +0->242, jf +169->411 
+ 242 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 243 3500000801000000  jge  0x00000001, jt +0->244, jf +8->252 
+ 244 1500000201000000  jeq  0x00000001, jt +0->245, jf +2->247 
+ 245 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 246 35000005fd030000  jge  0x000003fd, jt +0->247, jf +5->252 
+ 247 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 248 2500030001000000  jgt  0x00000001, jt +3->252, jf +0->249 
+ 249 150000a101000000  jeq  0x00000001, jt +0->250, jf +161->411 
+ 250 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 251 2500009f04040000  jgt  0x00000404, jt +0->252, jf +159->411 
+ 252 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 253 3500000801000000  jge  0x00000001, jt +0->254, jf +8->262 
+ 254 1500000201000000  jeq  0x00000001, jt +0->255, jf +2->257 
+ 255 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 256 35000005fe030000  jge  0x000003fe, jt +0->257, jf +5->262 
+ 257 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 258 2500030001000000  jgt  0x00000001, jt +3->262, jf +0->259 
+ 259 1500009701000000  jeq  0x00000001, jt +0->260, jf +151->411 
+ 260 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 261 2500009505040000  jgt  0x00000405, jt +0->262, jf +149->411 
+ 262 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 263 3500000801000000  jge  0x00000001, jt +0->264, jf +8->272 
+ 264 1500000201000000  jeq  0x00000001, jt +0->265, jf +2->267 
+ 265 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 266 35000005ff030000  jge  0x000003ff, jt +0->267, jf +5->272 
+ 267 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 268 2500030001000000  jgt  0x00000001, jt +3->272, jf +0->269 
+ 269 1500008d01000000  jeq  0x00000001, jt +0->270, jf +141->411 
+ 270 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 271 2500008b06040000  jgt  0x00000406, jt +0->272, jf +139->411 
+ 272 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 273 3500000801000000  jge  0x00000001, jt +0->274, jf +8->282 
+ 274 1500000201000000  jeq  0x00000001, jt +0->275, jf +2->277 
+ 275 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 276 3500000500040000  jge  0x00000400, jt +0->277, jf +5->282 
+ 277 2000000014000000  ld   [args[0].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 278 2500030001000000  jgt  0x00000001, jt +3->282, jf +0->279 
+ 279 1500008301000000  jeq  0x00000001, jt +0->280, jf +131->411 
+ 280 2000000010000000  ld   [args[0].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 281 2500008107040000  jgt  0x00000407, jt +0->282, jf +129->411 
+ 282 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 283 3500000801000000  jge  0x00000001, jt +0->284, jf +8->292 
+ 284 1500000201000000  jeq  0x00000001, jt +0->285, jf +2->287 
+ 285 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 286 3500000501040000  jge  0x00000401, jt +0->287, jf +5->292 
+ 287 200000001c000000  ld   [args[1].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 288 2500030001000000  jgt  0x00000001, jt +3->292, jf +0->289 
+ 289 1500007901000000  jeq  0x00000001, jt +0->290, jf +121->411 
+ 290 2000000018000000  ld   [args[1].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 291 2500007708040000  jgt  0x00000408, jt +0->292, jf +119->411 
+ 292 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 293 3500000801000000  jge  0x00000001, jt +0->294, jf +8->302 
+ 294 1500000201000000  jeq  0x00000001, jt +0->295, jf +2->297 
+ 295 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 296 3500000502040000  jge  0x00000402, jt +0->297, jf +5->302 
+ 297 2000000024000000  ld   [args[2].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 298 2500030001000000  jgt  0x00000001, jt +3->302, jf +0->299 
+ 299 1500006f01000000  jeq  0x00000001, jt +0->300, jf +111->411 
+ 300 2000000020000000  ld   [args[2].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 301 2500006d09040000  jgt  0x00000409, jt +0->302, jf +109->411 
+ 302 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 303 3500000801000000  jge  0x00000001, jt +0->304, jf +8->312 
+ 304 1500000201000000  jeq  0x00000001, jt +0->305, jf +2->307 
+ 305 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 306 3500000503040000  jge  0x00000403, jt +0->307, jf +5->312 
+ 307 200000002c000000  ld   [args[3].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 308 2500030001000000  jgt  0x00000001, jt +3->312, jf +0->309 
+ 309 1500006501000000  jeq  0x00000001, jt +0->310, jf +101->411 
+ 310 2000000028000000  ld   [args[3].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 311 250000630a040000  jgt  0x0000040a, jt +0->312, jf +99->411 
+ 312 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 313 3500000801000000  jge  0x00000001, jt +0->314, jf +8->322 
+ 314 1500000201000000  jeq  0x00000001, jt +0->315, jf +2->317 
+ 315 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 316 3500000504040000  jge  0x00000404, jt +0->317, jf +5->322 
+ 317 2000000034000000  ld   [args[4].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 318 2500030001000000  jgt  0x00000001, jt +3->322, jf +0->319 
+ 319 1500005b01000000  jeq  0x00000001, jt +0->320, jf +91->411 
+ 320 2000000030000000  ld   [args[4].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 321 250000590b040000  jgt  0x0000040b, jt +0->322, jf +89->411 
+ 322 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 323 3500000801000000  jge  0x00000001, jt +0->324, jf +8->332 
+ 324 1500000201000000  jeq  0x00000001, jt +0->325, jf +2->327 
+ 325 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+ 326 3500000505040000  jge  0x00000405, jt +0->327, jf +5->332 
+ 327 200000003c000000  ld   [args[5].hi]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 328 2500030001000000  jgt  0x00000001, jt +3->332, jf +0->329 
+ 329 1500005101000000  jeq  0x00000001, jt +0->330, jf +81->411 
+ 330 2000000038000000  ld   [args[5].lo]                       ; rule 0 comparison when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+ 331 2500004f0c040000  jgt  0x0000040c, jt +0->332, jf +79->411 
+ 332 2000000000000000  ld   [seccomp_data.nr]                  ; rule 1 syscall match test
+ 333 1500000127000000  jeq  0x00000027, jt +0->334, jf +1->335 ; rule 1 syscall match test
+ 334 050000004d000000  ja   +77 -> 412                         
+ 335 2000000000000000  ld   [seccomp_data.nr]                  ; rule 2 syscall match test
+ 336 1500000102000000  jeq  0x00000002, jt +0->337, jf +1->338 ; rule 2 syscall match test
+ 337 050000004a000000  ja   +74 -> 412                         
+ 338 2000000000000000  ld   [seccomp_data.nr]                  ; rule 3 syscall match test
+ 339 1500000104000000  jeq  0x00000004, jt +0->340, jf +1->341 ; rule 3 syscall match test
+ 340 0500000047000000  ja   +71 -> 412                         
+ 341 2000000000000000  ld   [seccomp_data.nr]                  ; rule 4 syscall match test
+ 342 1500000105000000  jeq  0x00000005, jt +0->343, jf +1->344 ; rule 4 syscall match test
+ 343 0500000044000000  ja   +68 -> 412                         
+ 344 2000000000000000  ld   [seccomp_data.nr]                  ; rule 5 syscall match test
+ 345 1500000106000000  jeq  0x00000006, jt +0->346, jf +1->347 ; rule 5 syscall match test
+ 346 0500000041000000  ja   +65 -> 412                         
+ 347 2000000000000000  ld   [seccomp_data.nr]                  ; rule 6 syscall match test
+ 348 1500000108000000  jeq  0x00000008, jt +0->349, jf +1->350 ; rule 6 syscall match test
+ 349 050000003e000000  ja   +62 -> 412                         
+ 350 2000000000000000  ld   [seccomp_data.nr]                  ; rule 7 syscall match test
+ 351 1500000109000000  jeq  0x00000009, jt +0->352, jf +1->353 ; rule 7 syscall match test
+ 352 050000003b000000  ja   +59 -> 412                         
+ 353 2000000000000000  ld   [seccomp_data.nr]                  ; rule 8 syscall match test
+ 354 150000010a000000  jeq  0x0000000a, jt +0->355, jf +1->356 ; rule 8 syscall match test
+ 355 0500000038000000  ja   +56 -> 412                         
+ 356 2000000000000000  ld   [seccomp_data.nr]                  ; rule 9 syscall match test
+ 357 150000010b000000  jeq  0x0000000b, jt +0->358, jf +1->359 ; rule 9 syscall match test
+ 358 0500000035000000  ja   +53 -> 412                         
+ 359 2000000000000000  ld   [seccomp_data.nr]                  ; rule 10 syscall match test
+ 360 150000010c000000  jeq  0x0000000c, jt +0->361, jf +1->362 ; rule 10 syscall match test
+ 361 0500000032000000  ja   +50 -> 412                         
+ 362 2000000000000000  ld   [seccomp_data.nr]                  ; rule 11 syscall match test
+ 363 150000010d000000  jeq  0x0000000d, jt +0->364, jf +1->365 ; rule 11 syscall match test
+ 364 050000002f000000  ja   +47 -> 412                         
+ 365 2000000000000000  ld   [seccomp_data.nr]                  ; rule 12 syscall match test
+ 366 150000010e000000  jeq  0x0000000e, jt +0->367, jf +1->368 ; rule 12 syscall match test
+ 367 050000002c000000  ja   +44 -> 412                         
+ 368 2000000000000000  ld   [seccomp_data.nr]                  ; rule 13 syscall match test
+ 369 1500000110000000  jeq  0x00000010, jt +0->370, jf +1->371 ; rule 13 syscall match test
+ 370 0500000029000000  ja   +41 -> 412                         
+ 371 2000000000000000  ld   [seccomp_data.nr]                  ; rule 14 syscall match test
+ 372 1500000114000000  jeq  0x00000014, jt +0->373, jf +1->374 ; rule 14 syscall match test
+ 373 0500000026000000  ja   +38 -> 412                         
+ 374 2000000000000000  ld   [seccomp_data.nr]                  ; rule 15 syscall match test
+ 375 1500000115000000  jeq  0x00000015, jt +0->376, jf +1->377 ; rule 15 syscall match test
+ 376 0500000023000000  ja   +35 -> 412                         
+ 377 2000000000000000  ld   [seccomp_data.nr]                  ; rule 16 syscall match test
+ 378 1500000118000000  jeq  0x00000018, jt +0->379, jf +1->380 ; rule 16 syscall match test
+ 379 0500000020000000  ja   +32 -> 412                         
+ 380 2000000000000000  ld   [seccomp_data.nr]                  ; rule 17 syscall match test
+ 381 150000011b000000  jeq  0x0000001b, jt +0->382, jf +1->383 ; rule 17 syscall match test
+ 382 050000001d000000  ja   +29 -> 412                         
+ 383 2000000000000000  ld   [seccomp_data.nr]                  ; rule 18 syscall match test
+ 384 1500000120000000  jeq  0x00000020, jt +0->385, jf +1->386 ; rule 18 syscall match test
+ 385 050000001a000000  ja   +26 -> 412                         
+ 386 2000000000000000  ld   [seccomp_data.nr]                  ; rule 19 syscall match test
+ 387 1500000123000000  jeq  0x00000023, jt +0->388, jf +1->389 ; rule 19 syscall match test
+ 388 0500000017000000  ja   +23 -> 412                         
+ 389 2000000000000000  ld   [seccomp_data.nr]                  ; rule 20 syscall match test
+ 390 1500000129000000  jeq  0x00000029, jt +0->391, jf +1->392 ; rule 20 syscall match test
+ 391 0500000014000000  ja   +20 -> 412                         
+ 392 2000000000000000  ld   [seccomp_data.nr]                  ; rule 21 syscall match test
+ 393 150000012d000000  jeq  0x0000002d, jt +0->394, jf +1->395 ; rule 21 syscall match test
+ 394 0500000011000000  ja   +17 -> 412                         
+ 395 2000000000000000  ld   [seccomp_data.nr]                  ; rule 22 syscall match test
+ 396 15000001e7000000  jeq  0x000000e7, jt +0->397, jf +1->398 ; rule 22 syscall match test
+ 397 050000000e000000  ja   +14 -> 412                         
+ 398 2000000000000000  ld   [seccomp_data.nr]                  ; rule 23 syscall match test
+ 399 150000013c000000  jeq  0x0000003c, jt +0->400, jf +1->401 ; rule 23 syscall match test
+ 400 050000000b000000  ja   +11 -> 412                         
+ 401 2000000000000000  ld   [seccomp_data.nr]                  ; rule 24 syscall match test
+ 402 1500000101000000  jeq  0x00000001, jt +0->403, jf +1->404 ; rule 24 syscall match test
+ 403 0500000008000000  ja   +8 -> 412                          
+ 404 2000000000000000  ld   [seccomp_data.nr]                  ; rule 25 syscall match test
+ 405 1500000125010000  jeq  0x00000125, jt +0->406, jf +1->407 ; rule 25 syscall match test
+ 406 0500000005000000  ja   +5 -> 412                          
+ 407 2000000000000000  ld   [seccomp_data.nr]                  ; rule 26 syscall match test
+ 408 150000019d000000  jeq  0x0000009d, jt +0->409, jf +1->410 ; rule 26 syscall match test
+ 409 0500000002000000  ja   +2 -> 412                          
+ 410 0600000000000080  ret  KILL_PROCESS                       ; ACTION KILL_PROCESS
+ 411 060000007b000500  ret  ERRNO(123)                         ; ACTION ERRNO(123)
+ 412 060000000000ff7f  ret  ALLOW                              ; ACTION ALLOW
+ 413 0600000000000080  ret  KILL_PROCESS                       ; ACTION KILL_PROCESS
+
+# === rule provenance map (instruction indices) ===
+# rule 0 (syscall=39, ERRNO(123)): dispatch insns 6
+#        insn    8  when[0].ge
+#        insn   11  when[0].ge
+#        insn   13  when[0].le
+#        insn   17  when[0].le
+#        insn   20  when.tail[0].ge
+#        insn   23  when.tail[0].ge
+#        insn   25  when.tail[0].le
+#        insn   29  when.tail[0].le
+#        insn   32  when.tail.tail[0].ge
+#        insn   35  when.tail.tail[0].ge
+#        insn   37  when.tail.tail[0].le
+#        insn   41  when.tail.tail[0].le
+#        insn   44  when.tail.tail.tail[0].ge
+#        insn   47  when.tail.tail.tail[0].ge
+#        insn   49  when.tail.tail.tail[0].le
+#        insn   53  when.tail.tail.tail[0].le
+#        insn   56  when.tail.tail.tail.tail[0].ge
+#        insn   59  when.tail.tail.tail.tail[0].ge
+#        insn   61  when.tail.tail.tail.tail[0].le
+#        insn   65  when.tail.tail.tail.tail[0].le
+#        insn   68  when.tail.tail.tail.tail.tail[0].ge
+#        insn   71  when.tail.tail.tail.tail.tail[0].ge
+#        insn   73  when.tail.tail.tail.tail.tail[0].le
+#        insn   77  when.tail.tail.tail.tail.tail[0].le
+#        insn   80  when.tail.tail.tail.tail.tail.tail[0].ge
+#        insn   83  when.tail.tail.tail.tail.tail.tail[0].ge
+#        insn   85  when.tail.tail.tail.tail.tail.tail[0].le
+#        insn   89  when.tail.tail.tail.tail.tail.tail[0].le
+#        insn   92  when.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn   95  when.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn   97  when.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  101  when.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  104  when.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  107  when.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  109  when.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  113  when.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  116  when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  119  when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  121  when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  125  when.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  128  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  131  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  133  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  137  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  140  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  143  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  145  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  149  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  152  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  155  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  157  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  160  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  162  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  165  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  167  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  170  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  172  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  175  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  177  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  180  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  182  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  185  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  187  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  190  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  192  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  195  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  197  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  200  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  202  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  205  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  207  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  210  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  212  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  215  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  217  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  220  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  222  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  225  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  227  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  230  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  232  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  235  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  237  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  240  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  242  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  245  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  247  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  250  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  252  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  255  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  257  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  260  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  262  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  265  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  267  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  270  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  272  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  275  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  277  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  280  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  282  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  285  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  287  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  290  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  292  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  295  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  297  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  300  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  302  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  305  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  307  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  310  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  312  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  315  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  317  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  320  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  322  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  325  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].ge
+#        insn  327  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+#        insn  330  when.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail.tail[0].le
+# rule 1 (syscall=39, ALLOW): dispatch insns 332,333
+# rule 2 (syscall=2, ALLOW): dispatch insns 335,336
+# rule 3 (syscall=4, ALLOW): dispatch insns 338,339
+# rule 4 (syscall=5, ALLOW): dispatch insns 341,342
+# rule 5 (syscall=6, ALLOW): dispatch insns 344,345
+# rule 6 (syscall=8, ALLOW): dispatch insns 347,348
+# rule 7 (syscall=9, ALLOW): dispatch insns 350,351
+# rule 8 (syscall=10, ALLOW): dispatch insns 353,354
+# rule 9 (syscall=11, ALLOW): dispatch insns 356,357
+# rule 10 (syscall=12, ALLOW): dispatch insns 359,360
+# rule 11 (syscall=13, ALLOW): dispatch insns 362,363
+# rule 12 (syscall=14, ALLOW): dispatch insns 365,366
+# rule 13 (syscall=16, ALLOW): dispatch insns 368,369
+# rule 14 (syscall=20, ALLOW): dispatch insns 371,372
+# rule 15 (syscall=21, ALLOW): dispatch insns 374,375
+# rule 16 (syscall=24, ALLOW): dispatch insns 377,378
+# rule 17 (syscall=27, ALLOW): dispatch insns 380,381
+# rule 18 (syscall=32, ALLOW): dispatch insns 383,384
+# rule 19 (syscall=35, ALLOW): dispatch insns 386,387
+# rule 20 (syscall=41, ALLOW): dispatch insns 389,390
+# rule 21 (syscall=45, ALLOW): dispatch insns 392,393
+# rule 22 (syscall=231, ALLOW): dispatch insns 395,396
+# rule 23 (syscall=60, ALLOW): dispatch insns 398,399
+# rule 24 (syscall=1, ALLOW): dispatch insns 401,402
+# rule 25 (syscall=293, ALLOW): dispatch insns 404,405
+# rule 26 (syscall=157, ALLOW): dispatch insns 407,408

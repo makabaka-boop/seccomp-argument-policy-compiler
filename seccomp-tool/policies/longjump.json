@@ -1,0 +1,360 @@
+{
+  "arch": "x86_64",
+  "default": "kill",
+  "rules": [
+    {
+      "syscall": 39,
+      "action": {
+        "errno": "123"
+      },
+      "when": {
+        "or": [
+          {
+            "arg": {
+              "arg": 0,
+              "op": "range",
+              "min": "4294968296",
+              "max": "4294968303"
+            }
+          },
+          {
+            "arg": {
+              "arg": 1,
+              "op": "range",
+              "min": "4294968297",
+              "max": "4294968304"
+            }
+          },
+          {
+            "arg": {
+              "arg": 2,
+              "op": "range",
+              "min": "4294968298",
+              "max": "4294968305"
+            }
+          },
+          {
+            "arg": {
+              "arg": 3,
+              "op": "range",
+              "min": "4294968299",
+              "max": "4294968306"
+            }
+          },
+          {
+            "arg": {
+              "arg": 4,
+              "op": "range",
+              "min": "4294968300",
+              "max": "4294968307"
+            }
+          },
+          {
+            "arg": {
+              "arg": 5,
+              "op": "range",
+              "min": "4294968301",
+              "max": "4294968308"
+            }
+          },
+          {
+            "arg": {
+              "arg": 0,
+              "op": "range",
+              "min": "4294968302",
+              "max": "4294968309"
+            }
+          },
+          {
+            "arg": {
+              "arg": 1,
+              "op": "range",
+              "min": "4294968303",
+              "max": "4294968310"
+            }
+          },
+          {
+            "arg": {
+              "arg": 2,
+              "op": "range",
+              "min": "4294968304",
+              "max": "4294968311"
+            }
+          },
+          {
+            "arg": {
+              "arg": 3,
+              "op": "range",
+              "min": "4294968305",
+              "max": "4294968312"
+            }
+          },
+          {
+            "arg": {
+              "arg": 4,
+              "op": "range",
+              "min": "4294968306",
+              "max": "4294968313"
+            }
+          },
+          {
+            "arg": {
+              "arg": 5,
+              "op": "range",
+              "min": "4294968307",
+              "max": "4294968314"
+            }
+          },
+          {
+            "arg": {
+              "arg": 0,
+              "op": "range",
+              "min": "4294968308",
+              "max": "4294968315"
+            }
+          },
+          {
+            "arg": {
+              "arg": 1,
+              "op": "range",
+              "min": "4294968309",
+              "max": "4294968316"
+            }
+          },
+          {
+            "arg": {
+              "arg": 2,
+              "op": "range",
+              "min": "4294968310",
+              "max": "4294968317"
+            }
+          },
+          {
+            "arg": {
+              "arg": 3,
+              "op": "range",
+              "min": "4294968311",
+              "max": "4294968318"
+            }
+          },
+          {
+            "arg": {
+              "arg": 4,
+              "op": "range",
+              "min": "4294968312",
+              "max": "4294968319"
+            }
+          },
+          {
+            "arg": {
+              "arg": 5,
+              "op": "range",
+              "min": "4294968313",
+              "max": "4294968320"
+            }
+          },
+          {
+            "arg": {
+              "arg": 0,
+              "op": "range",
+              "min": "4294968314",
+              "max": "4294968321"
+            }
+          },
+          {
+            "arg": {
+              "arg": 1,
+              "op": "range",
+              "min": "4294968315",
+              "max": "4294968322"
+            }
+          },
+          {
+            "arg": {
+              "arg": 2,
+              "op": "range",
+              "min": "4294968316",
+              "max": "4294968323"
+            }
+          },
+          {
+            "arg": {
+              "arg": 3,
+              "op": "range",
+              "min": "4294968317",
+              "max": "4294968324"
+            }
+          },
+          {
+            "arg": {
+              "arg": 4,
+              "op": "range",
+              "min": "4294968318",
+              "max": "4294968325"
+            }
+          },
+          {
+            "arg": {
+              "arg": 5,
+              "op": "range",
+              "min": "4294968319",
+              "max": "4294968326"
+            }
+          },
+          {
+            "arg": {
+              "arg": 0,
+              "op": "range",
+              "min": "4294968320",
+              "max": "4294968327"
+            }
+          },
+          {
+            "arg": {
+              "arg": 1,
+              "op": "range",
+              "min": "4294968321",
+              "max": "4294968328"
+            }
+          },
+          {
+            "arg": {
+              "arg": 2,
+              "op": "range",
+              "min": "4294968322",
+              "max": "4294968329"
+            }
+          },
+          {
+            "arg": {
+              "arg": 3,
+              "op": "range",
+              "min": "4294968323",
+              "max": "4294968330"
+            }
+          },
+          {
+            "arg": {
+              "arg": 4,
+              "op": "range",
+              "min": "4294968324",
+              "max": "4294968331"
+            }
+          },
+          {
+            "arg": {
+              "arg": 5,
+              "op": "range",
+              "min": "4294968325",
+              "max": "4294968332"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "syscall": 39,
+      "action": "allow"
+    },
+    {
+      "syscall": 2,
+      "action": "allow"
+    },
+    {
+      "syscall": 4,
+      "action": "allow"
+    },
+    {
+      "syscall": 5,
+      "action": "allow"
+    },
+    {
+      "syscall": 6,
+      "action": "allow"
+    },
+    {
+      "syscall": 8,
+      "action": "allow"
+    },
+    {
+      "syscall": 9,
+      "action": "allow"
+    },
+    {
+      "syscall": 10,
+      "action": "allow"
+    },
+    {
+      "syscall": 11,
+      "action": "allow"
+    },
+    {
+      "syscall": 12,
+      "action": "allow"
+    },
+    {
+      "syscall": 13,
+      "action": "allow"
+    },
+    {
+      "syscall": 14,
+      "action": "allow"
+    },
+    {
+      "syscall": 16,
+      "action": "allow"
+    },
+    {
+      "syscall": 20,
+      "action": "allow"
+    },
+    {
+      "syscall": 21,
+      "action": "allow"
+    },
+    {
+      "syscall": 24,
+      "action": "allow"
+    },
+    {
+      "syscall": 27,
+      "action": "allow"
+    },
+    {
+      "syscall": 32,
+      "action": "allow"
+    },
+    {
+      "syscall": 35,
+      "action": "allow"
+    },
+    {
+      "syscall": 41,
+      "action": "allow"
+    },
+    {
+      "syscall": 45,
+      "action": "allow"
+    },
+    {
+      "syscall": 231,
+      "action": "allow"
+    },
+    {
+      "syscall": 60,
+      "action": "allow"
+    },
+    {
+      "syscall": 1,
+      "action": "allow"
+    },
+    {
+      "syscall": 293,
+      "action": "allow"
+    },
+    {
+      "syscall": 157,
+      "action": "allow"
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "arch": "x86_64",
+  "default": {
+    "errno": "5"
+  },
+  "rules": [
+    {
+      "syscall": 39,
+      "action": "allow"
+    },
+    {
+      "syscall": 3,
+      "action": {
+        "errno": "92"
+      },
+      "when": {
+        "arg": {
+          "arg": 0,
+          "op": "eq",
+          "value": "999999"
+        }
+      }
+    },
+    {
+      "syscall": 33,
+      "action": {
+        "errno": "77"
+      },
+      "when": {
+        "and": [
+          {
+            "arg": {
+              "arg": 0,
+              "op": "eq",
+              "value": "77"
+            }
+          },
+          {
+            "arg": {
+              "arg": 1,
+              "op": "eq",
+              "value": "88"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "syscall": 28,
+      "action": {
+        "errno": "88"
+      },
+      "when": {
+        "arg": {
+          "arg": 2,
+          "op": "range",
+          "min": "0",
+          "max": "4"
+        }
+      }
+    },
+    {
+      "syscall": 28,
+      "action": {
+        "errno": "66"
+      },
+      "when": {
+        "not": {
+          "or": [
+            {
+              "arg": {
+                "arg": 2,
+                "op": "gt",
+                "value": "8"
+              }
+            },
+            {
+              "not": {
+                "arg": {
+                  "arg": 2,
+                  "op": "le",
+                  "value": "9"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "syscall": 33,
+      "action": "allow",
+      "when": {
+        "and": [
+          {
+            "arg": {
+              "arg": 0,
+              "op": "lt",
+              "value": "100"
+            }
+          },
+          {
+            "arg": {
+              "arg": 1,
+              "op": "lt",
+              "value": "100"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "syscall": 3,
+      "action": {
+        "errno": "99"
+      },
+      "when": {
+        "arg": {
+          "arg": 1,
+          "op": "range",
+          "min": "1000",
+          "max": "5000"
+        }
+      }
+    },
+    {
+      "syscall": 3,
+      "action": {
+        "errno": "78"
+      },
+      "when": {
+        "and": [
+          {
+            "arg": {
+              "arg": 1,
+              "op": "lt",
+              "value": "100"
+            }
+          },
+          {
+            "not": {
+              "arg": {
+                "arg": 1,
+                "op": "eq",
+                "value": "50"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "syscall": 60,
+      "action": "allow"
+    },
+    {
+      "syscall": 231,
+      "action": "allow"
+    },
+    {
+      "syscall": 1,
+      "action": "allow"
+    },
+    {
+      "syscall": 157,
+      "action": "allow"
+    }
+  ]
+}
